@@ -29,9 +29,7 @@ interface Params {
   id: string;
 }
 
-interface ExpensesScreenProps {
-  params: Params;
-}
+interface ExpensesScreenProps { params: { slug: Params[]; }; }
 
 interface BudgetInfo {
   id: number;
@@ -58,9 +56,9 @@ function ExpensesScreen({ params }: ExpensesScreenProps) {
 
   useEffect(() => {
     if (user?.primaryEmailAddress?.emailAddress) {
-      getBudgetInfo(user.primaryEmailAddress.emailAddress, parseInt(params.id));
+      getBudgetInfo(user.primaryEmailAddress.emailAddress, parseInt(params.slug[0].id));
     }
-  }, [user, params.id]);
+  }, [user, params.slug[0].id]);
 
   const getBudgetInfo = async (emailAddress: string, budgetId: number) => {
     try {
@@ -93,7 +91,7 @@ function ExpensesScreen({ params }: ExpensesScreenProps) {
       const result = await db
         .select()
         .from(Expenses)
-        .where(eq(Expenses.budgetId, parseInt(params.id)))
+        .where(eq(Expenses.budgetId, parseInt(params.slug[0].id)))
         .orderBy(desc(Expenses.id));
       setExpensesList(result as Expense[]);
       console.log(result);
@@ -106,13 +104,13 @@ function ExpensesScreen({ params }: ExpensesScreenProps) {
     try {
       const deleteExpenseResult = await db
         .delete(Expenses)
-        .where(eq(Expenses.budgetId, parseInt(params.id)))
+        .where(eq(Expenses.budgetId, parseInt(params.slug[0].id)))
         .returning();
 
       if (deleteExpenseResult) {
         await db
           .delete(Budgets)
-          .where(eq(Budgets.id, parseInt(params.id)))
+          .where(eq(Budgets.id, parseInt(params.slug[0].id)))
           .returning();
       }
       toast("Budget Deleted Successfully!");
@@ -130,7 +128,7 @@ function ExpensesScreen({ params }: ExpensesScreenProps) {
           {budgetInfo && (
             <EditBudget
               budgetInfo={budgetInfo}
-              refreshData={() => getBudgetInfo(user?.primaryEmailAddress?.emailAddress!, parseInt(params.id))}
+              refreshData={() => getBudgetInfo(user?.primaryEmailAddress?.emailAddress!, parseInt(params.slug[0].id))}
             />
           )}
           <AlertDialog>
@@ -163,10 +161,10 @@ function ExpensesScreen({ params }: ExpensesScreenProps) {
           <div className="h-[150px] w-full bg-slate-200 rounded-lg animate-pulse" />
         )}
         <AddExpenses
-          budgetId={parseInt(params.id)}
+          budgetId={parseInt(params.slug[0].id)}
           user={user}
           refreshData={() =>
-            getBudgetInfo(user?.primaryEmailAddress?.emailAddress!, parseInt(params.id))
+            getBudgetInfo(user?.primaryEmailAddress?.emailAddress!, parseInt(params.slug[0].id))
           }
         />
       </div>
@@ -174,12 +172,11 @@ function ExpensesScreen({ params }: ExpensesScreenProps) {
         <ExpenseListTable
           expensesList={expensesList}
           refreshData={() =>
-            getBudgetInfo(user?.primaryEmailAddress?.emailAddress!, parseInt(params.id))
+            getBudgetInfo(user?.primaryEmailAddress?.emailAddress!, parseInt(params.slug[0].id))
           }
         />
       </div>
     </div>
   );
 }
-
 export default ExpensesScreen;
