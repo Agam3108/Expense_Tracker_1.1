@@ -7,7 +7,7 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.config({
-    extends: ['next/core-web-vitals', 'next/typescript'],
+    extensions: ['next/core-web-vitals', 'next/typescript'],
     rules: {
       // Disable all TypeScript-related rules
       '@typescript-eslint/*': 'off',
