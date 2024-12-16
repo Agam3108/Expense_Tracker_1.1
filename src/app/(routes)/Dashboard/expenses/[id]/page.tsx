@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { Budgets, Expenses } from "../../../../../../utils/schema";
 import { db } from "../../../../../../utils/dbConfig";
@@ -25,11 +25,11 @@ import {
 import { toast } from "sonner";
 import EditBudget from "../_components/EditBudget";
 
-interface Params {
-  id: string;
-}
 
-interface ExpensesScreenProps { params: { slug: Params[]; }; }
+
+interface ExpensesScreenProps { 
+  params: Promise<any>; 
+}
 
 interface BudgetInfo {
   id: number;
@@ -48,7 +48,8 @@ interface Expense {
   createdAt: string | null;
 }
 
-function ExpensesScreen({ params }: ExpensesScreenProps) {
+function ExpensesScreen(props: ExpensesScreenProps) {
+  const params = use(props.params);
   const { user } = useUser();
   const [budgetInfo, setbudgetInfo] = useState<BudgetInfo | undefined>(undefined);
   const [expensesList, setExpensesList] = useState<Expense[]>([]);
